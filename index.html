@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Translator</title>
+    <link rel="stylesheet" href="src/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5L3.5 6.5L12 10.5L20.5 6.5L12 2.5Z" fill="#4F46E5"/><path d="M3.5 17.5L12 21.5L20.5 17.5" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12L12 16L20.5 12" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 4.5L12 6L8.5 4.5L12 3L15.5 4.5Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <h1>Good Translator</h1>
+                <!--<span>Powered by Google</span>-->
+            </div>
+            <div class="theme-toggle">
+                <svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3a9 9 0 0 0 9 9c0 .46-.04.92-.1 1.36a5.5 5.5 0 0 1-9.76-4.26A9.01 9.01 0 0 0 12 3Z"/></svg>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h2>Advanced Contextual Translation</h2>
+                <p>Translate with context awareness. Handles slang, idioms, and informal language naturally.</p>
+            </section>
+
+            <section class="translator-grid">
+                <!-- Source Language Box -->
+                <div class="language-box">
+                    <div class="language-header">
+                        <label for="source-lang">Source Language</label>
+                    </div>
+                    <select id="source-lang" name="source-lang">
+                        <option value="auto">Auto-detect</option>
+                    </select>
+                    <textarea id="source-text" placeholder="Enter text to translate..." maxlength="5000"></textarea>
+                    <div class="box-footer">
+                        <button class="icon-button" id="source-speak-btn" aria-label="Listen to source text">
+                            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3m13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77c0-4.28-2.99-7.86-7-8.77"/></svg>
+                        </button>
+                        <span id="source-char-count">0 / 5000 characters</span>
+                    </div>
+                </div>
+
+                <!-- Target Language Box -->
+                <div class="language-box">
+                    <div class="language-header">
+                        <label for="target-lang">Target Language</label>
+                        <span class="badge">Enhanced</span>
+                    </div>
+                    <select id="target-lang" name="target-lang"></select>
+                    <textarea id="target-text" placeholder="Translation will appear here..." readonly></textarea>
+                    <div class="box-footer">
+                        <button class="icon-button" id="target-speak-btn" aria-label="Listen to translated text">
+                             <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3m13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77c0-4.28-2.99-7.86-7-8.77"/></svg>
+                        </button>
+                        <button class="icon-button" id="copy-btn" aria-label="Copy translated text">
+                            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        </button>
+                        <span id="target-char-count">0 characters</span>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="context-box">
+                <label for="context-input">Context (Optional)</label>
+                <input type="text" id="context-input" placeholder="Add context to improve translation accuracy (e.g., 'casual conversation', 'formal document')">
+                <p class="context-hint">Providing context helps understand the tone and style for better translations.</p>
+            </section>
+
+            <section class="actions">
+                <button id="swap-btn" class="secondary-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M16.89 15.5l-4.24-4.24V1h2v9.24l3.54 3.54zM7.11 8.5l4.24 4.24V23h-2V13.76L5.81 10.26z"/></svg>
+                    Swap Languages
+                </button>
+            </section>
+            
+            <section class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3>Smart Engine</h3>
+                    <p>Advanced engine understands context, slang, and informal language.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>100+ Languages</h3>
+                    <p>Support for major world languages and dialects.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Context Aware</h3>
+                    <p>Maintains meaning and tone across different contexts.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>By Leo @ OSU</p>
+        </footer>
+    </div>
+
+    <script src="src/script.js"></script>
+</body>
+</html>
