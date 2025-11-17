@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Show loading indicator in textarea
         const previousText = targetTextarea.value;
-        //targetTextarea.value = 'Translating...'; does not make it look cool
+        //targetTextarea.value = 'Translating...'; looks bad
 
         try {
             console.log('📤 Sending translation request...', { text: text.substring(0, 30), sourceLang, targetLang });
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 2b. Real-time translation with debouncing
+    // 2b. Live translation, as you type
     function handleRealTimeTranslate() {
         // Clear existing timeout
         if (translateTimeout) {
