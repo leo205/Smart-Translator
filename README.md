@@ -26,7 +26,7 @@ HUGGINGFACE_API_KEY=your_huggingface_api_key_here
 ```
 Get your free API key at: https://huggingface.co/settings/tokens (No credit card required!)
 
-**Note:** Groq is recommended because it's faster, which is perfect for real-time translation!
+**Note:** Groq is recommended because it's faster, which is perfect for real-time translation! But both work fine and are free! 
 
 ### 3. Run the Backend Server
 
