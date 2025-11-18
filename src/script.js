@@ -194,26 +194,35 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 3. Swap languages and text
     function handleSwapLanguages() {
+        // Prevent rapid clicking/swapping
+        if (isTranslating) {
+            console.log('Translation in progress, skipping swap');
+            return;
+        }
+
         const sourceLang = sourceLangSelect.value;
         const targetLang = targetLangSelect.value;
         const sourceText = sourceTextarea.value;
         const targetText = targetTextarea.value;
 
-        // Swap dropdowns (if source wasn't auto-detect)
-        if (sourceLang !== 'auto') {
-            sourceLangSelect.value = targetLang;
-            targetLangSelect.value = sourceLang;
-        } else {
-            // If source was auto, just set target to what source would be
-            targetLangSelect.value = sourceLangSelect.options[1]?.value || 'en';
-        }
-
-        // Swap text
+        // Swap the text first (before changing languages)
         sourceTextarea.value = targetText;
         targetTextarea.value = sourceText;
-        updateCharCount(); // Update count after swapping
+        updateCharCount();
+
+        // Swap languages properly
+        if (sourceLang === 'auto') {
+            // If source was auto-detect, set source to the current target language
+            // and set target to auto-detect
+            sourceLangSelect.value = targetLang;
+            targetLangSelect.value = 'auto';
+        } else {
+            // Normal swap: both languages are specific
+            sourceLangSelect.value = targetLang;
+            targetLangSelect.value = sourceLang;
+        }
         
-        // Trigger translation if there's text
+        // Trigger translation if there's text in the new source box
         if (sourceTextarea.value.trim()) {
             handleRealTimeTranslate();
         }

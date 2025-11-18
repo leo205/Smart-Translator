@@ -1,14 +1,21 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
+from collections import defaultdict
 import requests
 import os
 from dotenv import load_dotenv
 import json
+import time
 
 # Load environment variables from a .env file
 load_dotenv()
+
+# Rate limit settings (per IP)
+MAX_REQUESTS = 20        # requests per window
+WINDOW_SECONDS = 3600    # 1 hour window
+ip_usage = defaultdict(list)  # { ip: [timestamps] }
 
 # Groq API - FREE and VERY FAST! Perfect for real-time translation
 # Get your free API key at: https://console.groq.com/keys
@@ -70,7 +77,7 @@ SUPPORTED_LANGUAGES = [
     {"code": "ja", "name": "Japanese", "native_name": "日本語"},
     {"code": "ko", "name": "Korean", "native_name": "한국어"},
     {"code": "zh", "name": "Chinese", "native_name": "中文"},
-    # ... include the rest of the languages from your original file
+    # Add more languages l8r
 ]
 
 def get_language_name(code: str) -> str:
@@ -88,20 +95,43 @@ async def get_languages():
 
 # API endpoint that does the actual translation
 @app.post("/translate", response_model=TranslationResponse)
-async def translate_text(request: TranslationRequest):
-    """Translate text using Hugging Face's free API"""
+async def translate_text(payload: TranslationRequest, request: Request):
+    """Translate text using Groq/Hugging Face with basic IP rate limiting"""
     
-    if not request.text or not request.text.strip():
+    now = time.time()
+    client_ip = request.client.host if request.client else "unknown"
+
+    # Keep only timestamps within the window
+    recent_requests = [ts for ts in ip_usage[client_ip] if now - ts < WINDOW_SECONDS]
+    ip_usage[client_ip] = recent_requests
+
+    if len(recent_requests) >= MAX_REQUESTS:
+        raise HTTPException(
+            status_code=429,
+            detail="Rate limit exceeded. Please wait a moment before trying again."
+        )
+
+    # Record this request
+    ip_usage[client_ip].append(now)
+
+     # - Prevents from abusing the API -
+    if len(payload.text) > 5000:
+        raise HTTPException(
+            status_code=413,
+            detail="Text too long. Maximum allowed length is 5000 characters."
+        )
+    
+    if not payload.text or not payload.text.strip():
         return TranslationResponse(
             translated_text="",
-            source_language=request.source_language,
-            target_language=request.target_language,
+            source_language=payload.source_language,
+            target_language=payload.target_language,
             confidence=0.0,
             ai_enhanced=True
         )
     
-    source_lang_name = get_language_name(request.source_language) if request.source_language != "auto" else "the detected language"
-    target_lang_name = get_language_name(request.target_language)
+    source_lang_name = get_language_name(payload.source_language) if payload.source_language != "auto" else "the detected language"
+    target_lang_name = get_language_name(payload.target_language)
     
     # Prompting the LLM (API request)
     prompt = f"""You are a professional translator. Translate the following text from {source_lang_name} to {target_lang_name}.
@@ -110,20 +140,20 @@ Requirements:
 - Preserve the original tone and intent
 - Naturally handle slang, idioms, and informal language
 - Keep the translation natural and fluent
-{f"- Context: {request.context}" if request.context else ""}
+{f"- Context: {payload.context}" if payload.context else ""}
 
-Text to translate: "{request.text}"
+Text to translate: "{payload.text}"
 
 Provide ONLY the translated text, nothing else."""
     
     try:
         # Try Groq first (faster and free)
         if GROQ_API_KEY:
-            return await translate_with_groq(request, source_lang_name, target_lang_name, prompt)
+            return await translate_with_groq(payload, source_lang_name, target_lang_name, prompt)
         
         # Fallback to Hugging Face
         if HF_API_KEY:
-            return await translate_with_huggingface(request, source_lang_name, target_lang_name, prompt)
+            return await translate_with_huggingface(payload, source_lang_name, target_lang_name, prompt)
         
         # If no API keys, provide helpful error
         raise HTTPException(
