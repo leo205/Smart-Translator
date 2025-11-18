@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check if all elements exist
     if (!sourceLangSelect || !targetLangSelect || !sourceTextarea || !targetTextarea) {
-        console.error('❌ Critical elements missing!', {
+        console.error('Critical elements missing!', {
             sourceLangSelect: !!sourceLangSelect,
             targetLangSelect: !!targetLangSelect,
             sourceTextarea: !!sourceTextarea,
@@ -24,19 +24,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const API_BASE_URL = 'http://127.0.0.1:8000'; // Python backend URL
+    const API_BASE_URL = 'http://127.0.0.1:8000'; 
+    // ^ Python backend URL ^ 
 
     // Real-time translation variables
     let translateTimeout = null;
     let isTranslating = false;
-    const DEBOUNCE_DELAY = 10; // Wait 300ms after user stops typing (very fast!)
+    const DEBOUNCE_DELAY = 1200; 
+    // was 300ms, but it felt slow
+    // was 10ms but it was burning through credits
 
     // --- Functions ---
 
     // 1. Fetch languages from the backend and populate dropdowns
     async function populateLanguages() {
         try {
-            console.log('📡 Loading languages from backend...');
+            console.log('Loading languages from backend...');
             const response = await fetch(`${API_BASE_URL}/languages`);
             
             if (!response.ok) {
@@ -44,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const languages = await response.json();
-            console.log('✅ Languages loaded:', languages.length, 'languages');
+            console.log('Languages loaded:', languages.length, 'languages');
             
             if (!languages || languages.length === 0) {
                 throw new Error('No languages returned from server');
@@ -73,13 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     targetLangSelect.value = targetLangSelect.options[0].value;
                 }
-                console.log('✅ Default target language set to:', targetLangSelect.value);
+                console.log('Default target language set to:', targetLangSelect.value);
             } else {
-                console.error('❌ No language options available!');
+                console.error('No language options available!');
             }
 
         } catch (error) {
-            console.error('❌ Error populating languages:', error);
+            console.error('Error populating languages:', error);
             const errorMsg = `Could not load languages: ${error.message}\n\nPlease ensure:\n1. Backend is running at http://127.0.0.1:8000\n2. No firewall is blocking the connection`;
             alert(errorMsg);
             
@@ -122,24 +125,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!targetLang || targetLang === '') {
-            console.error('❌ No target language selected');
+            console.error('No target language selected');
             targetTextarea.value = 'Please select a target language';
             return;
         }
 
         // Prevent multiple simultaneous translations
         if (isTranslating) {
-            console.log('⏳ Translation already in progress, skipping...');
+            console.log('Translation already in progress, skipping...');
             return;
         }
         isTranslating = true;
         
         // Show loading indicator in textarea
         const previousText = targetTextarea.value;
-        //targetTextarea.value = 'Translating...'; looks bad
+        //targetTextarea.value = 'Translating...';
+        // removed ^^ since it looked bad when user typed
 
         try {
-            console.log('📤 Sending translation request...', { text: text.substring(0, 30), sourceLang, targetLang });
+            console.log('Sending translation request...', { text: text.substring(0, 30), sourceLang, targetLang });
             const response = await fetch(`${API_BASE_URL}/translate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -299,5 +303,5 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('dark');
     }
     
-    console.log('✅ Translator fully initialized!');
+    console.log('Translator fully initialized!');
 });

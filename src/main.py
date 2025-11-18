@@ -32,6 +32,8 @@ app.add_middleware(
     CORSMiddleware,
     # You can be more specific, but for development, "*" is okay.
     # The default for Live Server is often http://127.0.0.1:5500
+    # Change this bottom one to website url
+    # so API calls can just work off that url
     allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
@@ -76,7 +78,7 @@ def get_language_name(code: str) -> str:
     for lang in SUPPORTED_LANGUAGES:
         if lang["code"] == code:
             return lang["name"]
-    return "Unknown" # Return a default value
+    return "Unknown" 
 
 # API endpoint to get the list of languages
 @app.get("/languages", response_model=List[LanguageInfo])
@@ -101,7 +103,7 @@ async def translate_text(request: TranslationRequest):
     source_lang_name = get_language_name(request.source_language) if request.source_language != "auto" else "the detected language"
     target_lang_name = get_language_name(request.target_language)
     
-    # Build the prompt for the LLM
+    # Prompting the LLM (API request)
     prompt = f"""You are a professional translator. Translate the following text from {source_lang_name} to {target_lang_name}.
 
 Requirements:
